@@ -1,0 +1,103 @@
+<html>
+<head>
+<style>
+body {
+	margin: 0;
+	padding: 0;	
+}
+
+div {
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box;
+}
+
+#wrapper {
+	width: 100%;
+	height: 100%;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;	
+  	-webkit-box-align: center;
+	padding: 20px;
+	background-color: #494C4A;
+}
+
+#buttons {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;	
+  	-webkit-box-align: center;
+}
+#input-container {
+	background-color: #999;
+	color: #383838;
+	border-radius: 9px;
+	padding: 4px;
+}
+
+input {
+	outline: none;
+	font-size: 2em;
+	border: 3px solid #6D6D6D;
+	background: none;
+}
+
+.plane {
+	width: 30px;
+	height: 30px;
+	background-color: #907199;
+}
+
+#fetch-button {
+
+
+
+
+}
+
+#destroy-button {
+
+
+}
+
+.button {
+	border: 8px solid #999;
+	padding: 10px;
+	margin: 20px;
+	font-size: 2em;
+	font-weight: bold;
+	border-radius: 9px;
+	cursor: default;
+	color: #173717;
+	-webkit-user-select: none;
+	user-select: none;
+}
+.button:hover {
+	border-color: #463F99;
+}
+</style>
+
+<script>
+// TODO: bootstrap using express
+
+</script>
+<script src="jquery-1.7.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="underscore.js" type="text/javascript" charset="utf-8"></script>
+<script src="backbone.js" type="text/javascript" charset="utf-8"></script>
+
+</head>
+<body>
+	<div id='wrapper'>
+		<div id='buttons'>
+			<div class='button' id='create-button'>create</div>
+			<div class='button' id='delete-button'>delete</div>
+			<div id='fetch-button' class='button'>fetch</div>		
+		</div>
+		<div id='input-container'>
+			<input id='color-input' type="text" value='' placeholder='color'/>
+		</div>
+				
+	</div>
+	<!-- <script src="app.js" type="text/javascript" charset="utf-8"></script> -->
+</body>
+</html>
