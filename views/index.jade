@@ -4,7 +4,15 @@
   ul#tag-list
   #tag-create-button create new tag
   #tag-edit-button edit tag
-//script(src='javascripts/main2.js')
+  #menu
+  #content
+script(type='text/template', id='template')
+  <div class='content-title'><%= title %></div>
+  <div class='content-body'><%= content %></div>
+script(type='text/template', id='template-menu')
+  <% _.each(models, function(model) { %>
+  <a href="#info/<%= model.position %>"><%= model.title %></a>
+  <% }); %>
 script(src='/javascripts/require.js', data-main='/javascripts/main2.js', type='text/javascript')
 
   

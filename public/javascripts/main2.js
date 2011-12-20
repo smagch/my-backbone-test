@@ -19,7 +19,7 @@ define([
   
   
   //return;
-  window.Tag = Backbone.Model.extend({
+  var Tag = Backbone.Model.extend({
       // defaults : {
       //           hoge : 'hogehoge'
       //       }
@@ -56,9 +56,9 @@ define([
   // });
   // 
   // window.Tags = new TagList();
-  window.Tags = new Tag();
+  var Tags = new Tag();
   
-  window.TagView = Backbone.View.extend({
+  var TagView = Backbone.View.extend({
     //  tagName : 'li' 
       el : $('#tag-list')        
     , template : _.template('<% _.each(tags, function(tag) { %><li class="tag-item"><div class="tag-display"><%= tag %></div><input class="tag-input" value="<%= tag %>"></input><span class="tag-delete"></span></li><%});%>')//_.template($('#tag-template').html())    
@@ -100,15 +100,65 @@ define([
       }        
   });
   
+  window.ContentModel = Backbone.Model.extend({
+      default : {
+          title : 'hogeTitle'
+        , position : -1
+        , content : 'hogeContent'
+      }
+  });
+  window.ContentCollection = Backbone.Collection.extend({
+      model : ContentModel
+    , comparator : function (contentModel) {
+        return contentModel.get('position');
+      }    
+  });
   
 
   
-  window.AppView = Backbone.View.extend({
+  
+  window.ContentView = Backbone.View.extend({
+      el : $('#content')
+    , template : _.template($('#template').html())
+    , menuEl : $('#menu')
+    , menuTemplate : _.template($('#template-menu').html())
+    , events : {
+        //'change' : 'render'
+    }
+    , initialize : function () {
+          console.log('content initialize');
+          this._position = 1;
+          this.model.bind('change', this.render, this);
+          
+          var menuModel = this.model.map(function (m) {
+              return { 
+                  title : m.get('title')
+                , position : m.get('position')
+              };
+          });
+          this.menuEl.html(this.menuTemplate({ models : menuModel}));
+      }
+    , setPosition : function(pos) {
+          this._position = pos;
+          this.model.trigger('change');
+      }
+    , render : function () {
+          console.log('content render');
+          var currentModel = this.model.at(this._position-1).toJSON();
+          this.el.html(this.template(currentModel));
+          return this;
+      }
+  });
+  
+
+  
+  var AppView = Backbone.View.extend({
       el : $('#wrapper')
     , editButton : $('#tag-edit-button')
     , createButton : $('#tag-create-button')
     , tagList : $('#tag-list')
     , tagView : null
+    , contentView : null
     , events : {
           'click #tag-edit-button' : 'toggleEdit'
         , 'click #tag-create-button' : 'createTag'
@@ -121,20 +171,28 @@ define([
           Tags.bind('reset', this.addAll, this);
           Tags.bind('change', this.save, this);
           Tags.fetch();
-          
+          //this.contentView = new ContentView({model : })
+          var self = this;
+          $.ajax({
+              url : '/javascripts/content.js'
+            , dataType : 'json'
+            , data : { }
+            , async : false
+            , success : function (data) {
+                  console.log('success');
+                  var contents = new ContentCollection(data);
+                  self.contentView = new ContentView({model : contents});
+                  self.contentView.setPosition(1);
+                  //backbone.history.loadUrl();
+              }
+            , error : function (err) {
+                  console.log('JSON.stringify(err) : ' + JSON.stringify(err));                  
+              }
+          });
       }
     , render : function () {
           console.log('render wrapper');
       }
-    // , addOne : function (model) {
-    //           console.log('addOne');
-    //           //var tagView = new TagView({model:model});
-    //           $('#tag-list').append(tagView.render().el);                                        
-    //       }
-    // , addAll : function () {          
-    //          console.log('addAll');
-    //          //Tags.each(this.addOne);
-    //      }
     , toggleEdit : function () {
           console.log('toggleEdit');
           if( this.isEditing() ) {
@@ -154,64 +212,47 @@ define([
           //Tags.add(tag);
           Tags.pushTag('new tag');
       }
-    , updateTags : function () {
-          // var model = this.tagView.model;
-          //           console.log('JSON.stringify(model) : ' + JSON.stringify(model));
-          //           var tags = model.get('tags');
-          //           console.log('tags : ' + tags);
-          //           _.each(tags, function (tag) {
-          //               console.log('tag : ' + tag);
-          //               
-          //           });
+    , updateTags : function () {      
           var model = $('.tag-item').map(function(index){
               return $(this).children('input').val();
-          });
-          
-          //Tags.updateTags(model)
-          //Tags.unset()
-          //Tags.set({tags : model});
-          //Tags.set({tags : model});
+          });    
           Tags.resetTags(model);
-          Tags.save();
-          // Tags.save({ tags : model }, {
-          //               success : function (e) {
-          //                   console.log('success');
-          //                   console.log('JSON.stringify(e) : ' + JSON.stringify(e));
-          //               }
-          //             , error : function (e) {
-          //                   console.log('error');
-          //                   console.log('JSON.stringify(e) : ' + JSON.stringify(e));
-          //               }
-          //           });
-          
-          
-          
-          
-          
-          // Tags.forEach(function (tag) {
-          //               var id = tag.id || tag.cid;
-          //               var name = $('#' + id + ' input').val();
-          //               console.log('name : ' + name);
-          //               if(tag.get('name') !== name) {
-          //                   tag.save({ name : name }, {
-          //                       success : function (e) {
-          //                           console.log('success');
-          //                           console.log('JSON.stringify(e) : ' + JSON.stringify(e));
-          //                           
-          //                       }
-          //                     , error : function (e) {
-          //                           console.log('error');
-          //                           console.log('JSON.stringify(e) : ' + JSON.stringify(e));
-          //                       }
-          //                   });                                    
-          //               }                                          
-          //           });   
+          Tags.save(); 
       }
     , save : function () {
           
       }
-  });  
+  }); 
+  
+  
   window.App = new AppView();
+  var TestRouter = Backbone.Router.extend({
+      routes: {
+          'info/:index' : 'showInfo'
+       // , 'home' : 
+      }
+    , initialize : function () {
+          console.log('initialize');
+         
+      }
+    , showInfo : function (index) {
+          console.log('showInfo' + index);
+          App.contentView.setPosition(index);
+      }
+    , home : function () {
+          console.log('home');
+      }
+    , about : function () {
+          console.log('about');
+      }
+    , contact : function () {
+          console.log('contact');
+      }
+  });
+  
+  window.testRouter = new TestRouter();
+  Backbone.history.start();
+
   
 });
 
