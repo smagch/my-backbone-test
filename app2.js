@@ -16,7 +16,29 @@ var app = module.exports = express.createServer();
 mongoose.connect('mongodb://localhost/hoge');
 
 // Configuration
+// when user session create or load, if user.lang is not defined, then see if Accept-Language
+// when get request
+// consider multi language support, how do I implement it???
+// consider use github for locale volunteer
 
+// static domain case
+// jp.dougazei.com  ... set locale jp
+// en.dougazei.com  ... set locale en
+// kr.dougazei.com  ... set locale kr
+// dougazei.com ... set locale by ( session || header.Accept-Language )
+
+// basically below should support permanent link
+// 1. About  === dougazei.com/about/jp, route by app.get('/about*')
+// 2. Term os use === dougazei.com/term-of-use/jp
+// 3. How to === dougazei.com/how-to/jp
+
+// nls variable is by template
+
+
+// 1. Posts === dougazei.com/:id
+// 2. Ranking === dougazei.com/ranking, query by ajax, store query config in localstorage
+// 3. index  === dougazei.com show all language posts, locale is by 
+// is not care about locale.
 var LinkSchema = new Schema({
     tags : [ String ]
 });
@@ -41,9 +63,11 @@ app.configure(function(){
        src: __dirname
      , dest: __dirname + '/public'
      , compile: compile
-  }));
+  }));  
+  app.use(express.static(__dirname + "/public"));
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'htuayreve'}));
   app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
 });
 
 app.configure('development', function(){
@@ -57,9 +81,23 @@ app.configure('production', function(){
 // Routes
 
 app.get('/', function(req, res){
+  var locale = req.session.locale;
+  console.log('locale : ' + locale);  
+  if(!locale) {
+    console.log('session.locale has not');
+    locale = 'root';
+  }
+  console.log('locale : ' + locale);  
   res.render('index', {
-    title: 'index'  
+      title: 'index'  
+    , url : 'index'
+    , locale : locale
   });
+});
+
+app.get('index', function (req, res) {
+  console.log('index get');
+  res.redirect('/');
 });
 
 app.get('/tags', loadTags, function (req, res) {
@@ -173,6 +211,11 @@ app.post('/tags', function (req, res) {
     //});  
 });
 
+app.get('/i18n/:locale', function (req, res) {    
+    var locale = req.params.locale;    
+    req.session.locale = locale;
+    res.redirect('back');
+});
 // app.delete('/tags/:id', function (req, res) {
 //     console.log('delete');
 //     var id = req.params.id;

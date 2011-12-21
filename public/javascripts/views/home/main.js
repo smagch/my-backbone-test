@@ -1,3 +1,6 @@
+console.log('main2 loaded');
+console.log('locale : ' + locale);
+
 require.config({
     'baseUrl' : '/javascripts'
   , 'paths' : {
@@ -5,20 +8,19 @@ require.config({
        //'jquery' : 'libs/jquery/jquery-1.7.1'
       , 'underscore' : 'libs/underscore/underscore-min'
       , 'backbone' : 'libs/backbone/main'
-    }    
+    }
+  , 'locale' : ( locale || 'root' )
 });
 
-define([
-    'jQuery'   
+
+
+require(
+  [ 'jQuery'   
   , 'underscore'
-  , 'backbone'  
-  ], function($, _, Backbone){
+  , 'backbone'
+  , 'i18n!views/home/nls/content'  
+  ], function($, _, Backbone, content2){
   'use strict';      
-//  console.log('$ : ' + $);
-//  console.log('_ : ' + _);
-  
-  
-  //return;
   var Tag = Backbone.Model.extend({
       // defaults : {
       //           hoge : 'hogehoge'
@@ -171,24 +173,30 @@ define([
           Tags.bind('reset', this.addAll, this);
           Tags.bind('change', this.save, this);
           Tags.fetch();
-          //this.contentView = new ContentView({model : })
           var self = this;
-          $.ajax({
-              url : '/javascripts/content.js'
-            , dataType : 'json'
-            , data : { }
-            , async : false
-            , success : function (data) {
-                  console.log('success');
-                  var contents = new ContentCollection(data);
-                  self.contentView = new ContentView({model : contents});
-                  self.contentView.setPosition(1);
-                  //backbone.history.loadUrl();
-              }
-            , error : function (err) {
-                  console.log('JSON.stringify(err) : ' + JSON.stringify(err));                  
-              }
-          });
+          
+          var contents = new ContentCollection(content2.contents);
+          self.contentView = new ContentView({model : contents});
+          self.contentView.setPosition(1);              
+          
+          //this.contentView = new ContentView({model : })
+          //var self = this;
+          // $.ajax({
+          //     url : '/javascripts/content.js'
+          //   , dataType : 'json'
+          //   , data : { }
+          //   , async : false
+          //   , success : function (data) {
+          //         console.log('success');
+          //         var contents = new ContentCollection(data);
+          //         self.contentView = new ContentView({model : contents});
+          //         self.contentView.setPosition(1);
+          //         //backbone.history.loadUrl();
+          //     }
+          //   , error : function (err) {
+          //         console.log('JSON.stringify(err) : ' + JSON.stringify(err));                  
+          //     }
+          // });
       }
     , render : function () {
           console.log('render wrapper');
@@ -224,7 +232,7 @@ define([
       }
   }); 
   
-  
+  // TODO : try dynamic loading requirejs nad router
   window.App = new AppView();
   var TestRouter = Backbone.Router.extend({
       routes: {
