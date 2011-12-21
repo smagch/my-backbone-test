@@ -1,0 +1,7 @@
+<% _.each(tags, function(tag) { %>
+	<li class="tag-item">
+		<div class="tag-display"><%= tag %></div>
+		<input class="tag-input" value="<%= tag %>"></input>
+		<span class="tag-delete"></span>
+	</li>
+<%});%>

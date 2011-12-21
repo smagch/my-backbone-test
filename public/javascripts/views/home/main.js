@@ -1,6 +1,3 @@
-console.log('main2 loaded');
-console.log('locale : ' + locale);
-
 require.config({
     'baseUrl' : '/javascripts'
   , 'paths' : {
@@ -18,39 +15,34 @@ require(
   [ 'jQuery'   
   , 'underscore'
   , 'backbone'
-  , 'i18n!views/home/nls/content'  
-  ], function($, _, Backbone, content2){
+  , 'i18n!views/home/nls/content'
+  , 'text!../templates/tag.html'
+  , 'models/tag'  
+  ], function($, _, Backbone, content2, tagTemplate, Tag){
   'use strict';      
-  var Tag = Backbone.Model.extend({
-      // defaults : {
-      //           hoge : 'hogehoge'
-      //       }
-      initialize : function () {
-          this.set({
-              tags : []
-          });
-      }
-    , url : '/tags'    
-    , pushTag : function (tag) {
-          //var model = this.get('tags');
-          //model.push(tag);
-          ///this.set({tags : model});
-          this.get('tags').push(tag);
-          this.trigger('change');
-      }
-    , resetTags : function (tags) {
-          var currentTags = this.get('tags');
-          _.each(tags, function(tag, index) { 
-              console.log('index : ' + index);              
-              currentTags[index] = tag;
-          });
-          this.trigger('change');
-      }
-    //     , removeByIndex : function (index) {
-    //           this.get('tags').splice(index, 1);
-    //           this.trigger('change');
-    //       }   
-  });
+  // var Tag = Backbone.Model.extend({      
+  //     initialize : function () {
+  //         this.set({
+  //             tags : []
+  //         });
+  //     }
+  //   , url : '/tags'    
+  //   , pushTag : function (tag) {
+  //         //var model = this.get('tags');
+  //         //model.push(tag);
+  //         ///this.set({tags : model});
+  //         this.get('tags').push(tag);
+  //         this.trigger('change');
+  //     }
+  //   , resetTags : function (tags) {
+  //         var currentTags = this.get('tags');
+  //         _.each(tags, function(tag, index) { 
+  //             console.log('index : ' + index);              
+  //             currentTags[index] = tag;
+  //         });
+  //         this.trigger('change');
+  //     } 
+  // });
   
   // window.TagList = Backbone.Collection.extend({
   //     model : Tag
@@ -63,7 +55,8 @@ require(
   var TagView = Backbone.View.extend({
     //  tagName : 'li' 
       el : $('#tag-list')        
-    , template : _.template('<% _.each(tags, function(tag) { %><li class="tag-item"><div class="tag-display"><%= tag %></div><input class="tag-input" value="<%= tag %>"></input><span class="tag-delete"></span></li><%});%>')//_.template($('#tag-template').html())    
+//    , template : _.template('<% _.each(tags, function(tag) { %><li class="tag-item"><div class="tag-display"><%= tag %></div><input class="tag-input" value="<%= tag %>"></input><span class="tag-delete"></span></li><%});%>')//_.template($('#tag-template').html())    
+    , template : _.template(tagTemplate)
     , events : {
           'click .tag-delete' : 'clear'
       }
